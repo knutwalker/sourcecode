@@ -11,6 +11,7 @@ val baseSettings = Seq(
   version := "0.1.5-SNAPSHOT",
   scalaVersion := scala211,
   crossScalaVersions := Seq(scala210, scala211, scala212, scala213),
+  scalacOptions += "-Yrangepos",
   scmInfo := Some(ScmInfo(
     browseUrl = url("https://github.com/lihaoyi/sourcecode"),
     connection = "scm:git:git@github.com:lihaoyi/sourcecode.git"

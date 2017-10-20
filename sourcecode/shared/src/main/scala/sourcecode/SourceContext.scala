@@ -128,17 +128,31 @@ object Impls{
   def text[T: c.WeakTypeTag](c: Compat.Context)(v: c.Expr[T]): c.Expr[sourcecode.Text[T]] = {
     import c.universe._
     val fileContent = new String(v.tree.pos.source.content)
-    val start = v.tree.collect {
-      case treeVal => treeVal.pos match {
-        case NoPosition ⇒ Int.MaxValue
-        case p ⇒ p.startOrPoint
-      }
-    }.min
-    val g = c.asInstanceOf[reflect.macros.runtime.Context].global
-    val parser = g.newUnitParser(fileContent.drop(start))
-    parser.expr()
-    val end = parser.in.lastOffset
-    val txt = fileContent.slice(start, start + end)
+
+    val (starts, ends) = v.tree.collect {
+      case tv if tv.pos.isRange =>
+        (tv.pos.start, tv.pos.end)
+    }.unzip
+
+    val (start, end) = if (starts.isEmpty || ends.isEmpty) {
+      c.warning(v.tree.pos, "Please add \"-Yrangepos\" to your scalac options to improve text parsing")
+
+      val start = v.tree.collect {
+        case treeVal => treeVal.pos match {
+          case NoPosition ⇒ Int.MaxValue
+          case p ⇒ p.startOrPoint
+        }
+      }.min
+      val g = c.asInstanceOf[reflect.macros.runtime.Context].global
+      val parser = g.newUnitParser(fileContent.drop(start))
+      parser.expr()
+      val end = parser.in.lastOffset
+      (start, start + end)
+    } else {
+      (starts.min, ends.max)
+    }
+
+    val txt = fileContent.slice(start, end)
     val tree = q"""${c.prefix}(${v.tree}, $txt)"""
     c.Expr[sourcecode.Text[T]](tree)
   }
