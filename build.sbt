@@ -6,9 +6,9 @@ val scala211 = "2.11.11"
 val scala212 = "2.12.2"
 val scala213 = "2.13.0-M1"
 val baseSettings = Seq(
-  organization := "com.lihaoyi",
+  organization := "de.knutwalker.com.lihaoyi",
   name := "sourcecode",
-  version := "0.1.5-SNAPSHOT",
+  version := "0.1.5-rangepos",
   scalaVersion := scala211,
   crossScalaVersions := Seq(scala210, scala211, scala212, scala213),
   scalacOptions += "-Yrangepos",
@@ -23,8 +23,7 @@ val baseSettings = Seq(
     id = "lihaoyi",
     name = "Li Haoyi",
     url = url("https://github.com/lihaoyi")
-  ),
-  publishTo := Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
+  )
 )
 lazy val noPublish = Seq(
   publishArtifact := false,
